@@ -3,17 +3,22 @@ require_relative '../spec_helper.rb'
 RSpec.describe Activejob::GoogleCloudTasks::Config do
   subject { Activejob::GoogleCloudTasks::Config }
 
-  it "have default path value" do
-    expect(subject.path).to eq '/activejobs'
+  it "default endpoint" do
+    expect(subject.endpoint).to eq '/activejobs'
   end
 
-  it "changes arbitrary path" do
-    subject.path = '/jobs'
-    expect(subject.path).to eq '/jobs'
+  it "endpoint=" do
+    subject.endpoint = '/jobs'
+    expect(subject.endpoint).to eq '/jobs'
   end
 
-  it "raises if blank path is to be set" do
-    expect { subject.path = nil }.to raise_error(RuntimeError)
-    expect { subject.path = '' }.to raise_error(RuntimeError)
+  it "default http_method" do
+    expect(subject.http_method).to eq :GET
   end
+
+  it "http_method=" do
+    subject.http_method = :POST
+    expect(subject.http_method).to eq :POST
+  end
+
 end

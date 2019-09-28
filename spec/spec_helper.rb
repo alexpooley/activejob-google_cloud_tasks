@@ -1,6 +1,9 @@
 require "bundler/setup"
 require "active_job"
 require "activejob/google_cloud_tasks"
+require "support/jobs"
+require 'google/cloud/tasks'
+
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

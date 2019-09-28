@@ -80,10 +80,13 @@ Rails.application.config.active_job.queue_adapter = Activejob::GoogleCloudTasks:
 
 ### Config
 ```
-Activejob::GoogleCloudTasks::Config.path = '/foo'
+Activejob::GoogleCloudTasks::Config.endpoint = '/foo'
+Activejob::GoogleCloudTasks::Config.http_method = :GET
 ```
 
-- `path` - (Optional) The path which the Cloud Tasks service forwards the task request to the worker. Default: `/activejobs`
+- `endpoint` - (Optional) The path or URL which the Cloud Tasks service forwards the task request to the worker. When the endpoint is a path
+then App Engine tasks will be created. When the endpoint is a URL then HTTP Target tasks are created. Default: `/activejobs`
+- `http_method` - (Optional) The HTTP method to use to connect ot the end point. Default: `:GET`
 
 ## Development
 
@@ -93,7 +96,7 @@ $ bundle exec rake spec
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/kawabatas/activejob-google_cloud_tasks.
+Bug reports and pull requests are welcome on GitHub at https://github.com/alexpooley/activejob-google_cloud_tasks.
 
 ## License
 
