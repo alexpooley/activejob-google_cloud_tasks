@@ -3,6 +3,7 @@ require "active_job"
 require "activejob/google_cloud_tasks"
 require "support/jobs"
 require 'google/cloud/tasks'
+require 'active_support/testing/time_helpers'
 
 
 RSpec.configure do |config|

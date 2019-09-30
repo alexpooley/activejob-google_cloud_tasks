@@ -36,15 +36,15 @@ RSpec.describe Activejob::GoogleCloudTasks::Adapter do
       end
     end
 
-    context 'scheduled task' do
+    context 'scheduled at task' do
       let(:scheduled_at) { 1.hour.from_now }
 
       before do
-        adapter.enqueue(job, scheduled_at: scheduled_at)
+        adapter.enqueue(job, wait_until: scheduled_at)
       end
 
       it 'creates cloud tasks job with schedule' do
-        task = Activejob::GoogleCloudTasks::Task.new(job, scheduled_at: scheduled_at)
+        task = Activejob::GoogleCloudTasks::Task.new(job, wait_until: scheduled_at)
         expect(client).to have_received(:create_task).with(queue, task.to_h)
         expect(task.to_h).to have_key :schedule_time
       end

@@ -1,8 +1,10 @@
 require_relative '../spec_helper.rb'
 
 RSpec.describe Activejob::GoogleCloudTasks::Task do
+  include ActiveSupport::Testing::TimeHelpers
 
   before(:all) do
+    Activejob::GoogleCloudTasks::Config.http_method = :GET
     make_job('HelloJob', 'hello_queue')
   end
   let(:job) { HelloJob.new }
@@ -10,21 +12,18 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
 
 
   describe '#to_h' do
-    let(:scheduled) { 1.hour.from_now }
-    let(:task) { described_class.new(job, {scheduled_at: scheduled}) }
+    let(:task) { described_class.new(job, {}) }
 
     context 'when endpoint is a path' do
       before do
-        Activejob::GoogleCloudTasks::Config.http_method = 'POST'
         Activejob::GoogleCloudTasks::Config.endpoint = '/path'
       end
       it 'return a scheduled app_engine_http_request' do
         exp = {
           app_engine_http_request: {
-            http_method: 'POST',
+            http_method: :GET,
             relative_uri: task.url.to_s
-          },
-          schedule_time: Google::Protobuf::Timestamp.new(seconds: scheduled.to_i)
+          }
         }
         expect(task.to_h).to eq exp
       end
@@ -32,18 +31,36 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
 
     context 'when endpoint is a URL' do
       before do
-        Activejob::GoogleCloudTasks::Config.http_method = 'POST'
         Activejob::GoogleCloudTasks::Config.endpoint = 'http://google.com'
       end
       it 'return a scheduled http_task_request' do
         exp = {
           http_request: {
-            http_method: 'POST',
+            http_method: :GET,
             url: task.url.to_s
-          },
-          schedule_time: Google::Protobuf::Timestamp.new(seconds: scheduled.to_i)
+          }
         }
         expect(task.to_h).to eq exp
+      end
+    end
+
+    context 'when scheduled for time' do
+      let(:scheduled) { 1.hour.from_now }
+      let(:task) { described_class.new(job, {wait_until: scheduled}) }
+      it 'include a schedule_time param' do
+        timestamp = Google::Protobuf::Timestamp.new(seconds: scheduled.to_i)
+        expect(task.to_h[:schedule_time]).to eq timestamp
+      end
+    end
+
+    context 'when scheduled with duration' do
+      before { freeze_time }
+      let(:scheduled) { 1.hour }
+      let(:task) { described_class.new(job, {wait: scheduled}) }
+      it 'include a schedule_time param' do
+        time = (Time.now+scheduled).to_i
+        timestamp = Google::Protobuf::Timestamp.new(seconds: time)
+        expect(task.to_h[:schedule_time]).to eq timestamp
       end
     end
   end

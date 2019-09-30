@@ -6,6 +6,8 @@ module Activejob
   module GoogleCloudTasks
     class Task
 
+      GPT = Google::Protobuf::Timestamp
+
       def initialize(job, attributes = {})
         @job = job
         @attributes = attributes
@@ -14,8 +16,12 @@ module Activejob
       def to_h
         task = public_send(request_type)
 
-        if @attributes.has_key?(:scheduled_at)
-          task[:schedule_time] = Google::Protobuf::Timestamp.new(seconds: @attributes[:scheduled_at].to_i)
+        if @attributes.has_key?(:wait_until)
+          task[:schedule_time] = GPT.new(seconds: @attributes[:wait_until].to_i)
+        end
+
+        if @attributes.has_key?(:wait)
+          task[:schedule_time] = GPT.new(seconds: (Time.now+@attributes[:wait]).to_i)
         end
 
         task
