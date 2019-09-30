@@ -106,10 +106,13 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
 
     before do
       Activejob::GoogleCloudTasks::Config.endpoint = 'old_endpoint'
+      job.class_eval do
+        attr_accessor :endpoint
+      end
     end
 
     it 'should replace global endpoint' do
-      task = described_class.new(job, {endpoint: new_endpoint})
+      job.endpoint = new_endpoint
 
       relative_uri = task.app_engine_task[:app_engine_http_request][:relative_uri]
 
@@ -122,10 +125,13 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
 
     before do
       Activejob::GoogleCloudTasks::Config.http_method = :GET
+      job.class_eval do
+        attr_accessor :http_method
+      end
     end
 
     it 'should replace global http_method' do
-      task = described_class.new(job, {http_method: new_http_method})
+      job.http_method = new_http_method
 
       http_method = task.app_engine_task[:app_engine_http_request][:http_method]
 

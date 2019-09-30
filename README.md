@@ -88,6 +88,18 @@ Activejob::GoogleCloudTasks::Config.http_method = :GET
 then App Engine tasks will be created. When the endpoint is a URL then HTTP Target tasks are created. Default: `/activejobs`
 - `http_method` - (Optional) The HTTP method to use to connect ot the end point. Default: `:GET`
 
+You can override the `endpoint` and `http_method` on a per job basis. For example:
+```
+class MyJob < ApplicationJob
+  def endpoint
+    '/my_job_endpoint'
+  end
+
+  def http_method
+    :DELETE
+  end
+end
+
 ## Development
 
 ``` sh
