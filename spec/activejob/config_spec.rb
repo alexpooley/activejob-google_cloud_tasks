@@ -12,6 +12,18 @@ RSpec.describe Activejob::GoogleCloudTasks::Config do
     expect(subject.endpoint).to eq '/jobs'
   end
 
+  describe 'path' do
+    context 'endpoint is URL' do
+      before { subject.endpoint = 'http://my-app.com/some-path' }
+      it { expect(subject.path).to eq '/some-path' }
+    end
+
+    context 'endpoint is a path' do
+      before { subject.endpoint = '/some-path' }
+      it { expect(subject.path).to eq '/some-path' }
+    end
+  end
+
   it "default http_method" do
     expect(subject.http_method).to eq :GET
   end
