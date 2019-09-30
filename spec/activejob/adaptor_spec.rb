@@ -26,29 +26,14 @@ RSpec.describe Activejob::GoogleCloudTasks::Adapter do
   describe '#enqueue' do
     let(:job) { GreetJob.new('foo', ':)', prefix: 'howdy') }
     let(:queue) { "projects/#{project}/locations/#{location}/queues/#{queue_name}" }
+    let(:attributes) { double '[]': nil, has_key?: false }
+    let(:task) { Activejob::GoogleCloudTasks::Task.new(job, attributes) }
 
-    context 'basic task' do
-      before { adapter.enqueue(job) }
+    before { adapter.enqueue(job, attributes) }
 
-      it 'creates cloud tasks job' do
-        task = Activejob::GoogleCloudTasks::Task.new(job)
-        expect(client).to have_received(:create_task).with(queue, task.to_h)
-      end
+    it 'create task with specified attributes' do
+      allow(Activejob::GoogleCloudTasks::Task).to receive(:new).and_return task
+      expect(client).to have_received(:create_task).with(queue, task.to_h)
     end
-
-    context 'scheduled at task' do
-      let(:scheduled_at) { 1.hour.from_now }
-
-      before do
-        adapter.enqueue(job, wait_until: scheduled_at)
-      end
-
-      it 'creates cloud tasks job with schedule' do
-        task = Activejob::GoogleCloudTasks::Task.new(job, wait_until: scheduled_at)
-        expect(client).to have_received(:create_task).with(queue, task.to_h)
-        expect(task.to_h).to have_key :schedule_time
-      end
-    end
-
   end
 end

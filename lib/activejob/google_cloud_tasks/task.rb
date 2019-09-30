@@ -56,7 +56,8 @@ module Activejob
       end
 
       def endpoint
-        URI.parse Activejob::GoogleCloudTasks::Config.endpoint
+        URI.parse @attributes[:endpoint] ||
+                  Activejob::GoogleCloudTasks::Config.endpoint
       end
 
       def request_type
@@ -69,6 +70,7 @@ module Activejob
       end
 
       def http_method
+        @attributes[:http_method] ||
         Activejob::GoogleCloudTasks::Config.http_method
       end
 

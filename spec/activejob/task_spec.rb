@@ -66,10 +66,12 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
   end
 
   describe '#app_engine_task' do
+
     before do
       Activejob::GoogleCloudTasks::Config.http_method = 'POST'
       Activejob::GoogleCloudTasks::Config.endpoint = '/path'
     end
+
     it 'return an app_engine_http_request structure' do
       exp = {
         app_engine_http_request: {
@@ -80,7 +82,6 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
       expect(task.app_engine_task).to eq exp
     end
   end
-
 
   describe '#http_task' do
     let(:endpoint) { 'https://google.com/path' }
@@ -96,6 +97,39 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
         }
       }
       expect(task.http_task).to eq exp
+    end
+  end
+
+
+  context 'override global endpoint' do
+    let(:new_endpoint) { 'abracadabra' }
+
+    before do
+      Activejob::GoogleCloudTasks::Config.endpoint = 'old_endpoint'
+    end
+
+    it 'should replace global endpoint' do
+      task = described_class.new(job, {endpoint: new_endpoint})
+
+      relative_uri = task.app_engine_task[:app_engine_http_request][:relative_uri]
+
+      expect(relative_uri).to match new_endpoint
+    end
+  end
+
+  context 'override global http_method' do
+    let(:new_http_method) { :DELETE }
+
+    before do
+      Activejob::GoogleCloudTasks::Config.http_method = :GET
+    end
+
+    it 'should replace global http_method' do
+      task = described_class.new(job, {http_method: new_http_method})
+
+      http_method = task.app_engine_task[:app_engine_http_request][:http_method]
+
+      expect(http_method).to eq new_http_method
     end
   end
 
