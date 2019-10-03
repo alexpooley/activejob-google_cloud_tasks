@@ -14,15 +14,14 @@ module Activejob
       class << self
         def call(env)
           task_str = env['rack.input'].read
-          task = JSON.parse(task_str) rescue nil
+          job_json = JSON.parse(task_str) rescue nil
 
-          unless task.has_key?('job_class')
+          unless job_json.has_key?('job_class')
             raise StandardError, "Job is not specified."
           end
 
-          job = klass(task['job_class'])
-          job.deserialize(task)
-          puts job.inspect
+          job = klass(job_json['job_class'])
+          job.deserialize(job_json)
           job.perform_now
 
           [200, {}, ['ok']]
