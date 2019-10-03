@@ -25,12 +25,7 @@ RSpec.describe Activejob::GoogleCloudTasks::Config do
   end
 
   it "default http_method" do
-    expect(subject.http_method).to eq :GET
-  end
-
-  it "http_method=" do
-    subject.http_method = :POST
-    expect(subject.http_method).to eq :POST
+    expect(subject.http_method).to eq 'POST'
   end
 
 end

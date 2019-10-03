@@ -4,10 +4,10 @@ module Activejob
   module GoogleCloudTasks
     class Config
       DEFAULT_ENDPOINT = '/activejobs'
-      DEFAULT_HTTP_METHOD = :GET
+      DEFAULT_HTTP_METHOD = 'POST'
 
       class << self
-        attr_writer :endpoint, :http_method
+        attr_writer :endpoint
 
         def endpoint
           @endpoint.presence || DEFAULT_ENDPOINT
@@ -20,7 +20,7 @@ module Activejob
         end
 
         def http_method
-          @http_method.presence || DEFAULT_HTTP_METHOD
+          DEFAULT_HTTP_METHOD
         end
       end
     end
