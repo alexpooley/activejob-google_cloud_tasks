@@ -7,7 +7,7 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
     Activejob::GoogleCloudTasks::Config.http_method = :GET
     make_job('HelloJob', 'hello_queue')
   end
-  let(:job) { HelloJob.new }
+  let(:job) { HelloJob.new(1, arg2: 'two') }
   let(:task) { described_class.new(job, {}) }
 
 
@@ -22,7 +22,8 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
         exp = {
           app_engine_http_request: {
             http_method: :GET,
-            relative_uri: task.url.to_s
+            relative_uri: task.endpoint.to_s,
+            body: job.serialize.to_json
           }
         }
         expect(task.to_h).to eq exp
@@ -37,7 +38,8 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
         exp = {
           http_request: {
             http_method: :GET,
-            url: task.url.to_s
+            url: task.endpoint.to_s,
+            body: job.serialize.to_json
           }
         }
         expect(task.to_h).to eq exp
@@ -76,7 +78,8 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
       exp = {
         app_engine_http_request: {
           http_method: 'POST',
-          relative_uri: task.url.to_s
+          relative_uri: task.endpoint.to_s,
+          body: job.serialize.to_json
         }
       }
       expect(task.app_engine_task).to eq exp
@@ -93,7 +96,8 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
       exp = {
         http_request: {
           http_method: :GET,
-          url: task.url.to_s
+          url: task.endpoint.to_s,
+          body: job.serialize.to_json
         }
       }
       expect(task.http_task).to eq exp
@@ -137,41 +141,6 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
 
       expect(http_method).to eq new_http_method
     end
-  end
-
-  describe '#url' do
-    before do
-      job.arguments = {arg1: 1, arg2: 'two'}
-    end
-
-    context 'with URL endpoint' do
-      before do
-        Activejob::GoogleCloudTasks::Config.endpoint = 'https://google.com'
-      end
-      it { expect(task.url).to be_kind_of URI::HTTPS }
-      it do
-        query = CGI.parse(task.url.query)
-        expect(query).to include({'job' => ['HelloJob']})
-        expect(query).to include({
-          'params[arg1]' => ['1'],
-          'params[arg2]' => ['two']})
-      end
-    end
-
-    context 'with path endpoint' do
-      before do
-        Activejob::GoogleCloudTasks::Config.endpoint = '/path'
-      end
-      it { expect(task.url).to be_kind_of URI::Generic }
-      it do
-        query = CGI.parse(task.url.query)
-        expect(query).to include({'job' => ['HelloJob']})
-        expect(query).to include({
-          'params[arg1]' => ['1'],
-          'params[arg2]' => ['two']})
-      end
-    end
-
   end
 
   describe '#endpoint' do

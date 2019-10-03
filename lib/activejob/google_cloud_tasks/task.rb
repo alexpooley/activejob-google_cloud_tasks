@@ -31,7 +31,8 @@ module Activejob
         {
           app_engine_http_request: {
             http_method: http_method,
-            relative_uri: url.to_s
+            relative_uri: endpoint.to_s,
+            body: body.to_json
           }
         }
       end
@@ -40,20 +41,20 @@ module Activejob
         {
           http_request: {
             http_method: http_method,
-            url: url.to_s
+            url: endpoint.to_s,
+            body: body.to_json
           }
         }
-      end
-
-      def url
-        query = "job=#{@job.class.to_s}&#{@job.arguments.to_query('params')}"
-        endpoint.tap{|e| e.query = query}
       end
 
       def endpoint
         uri = @job.endpoint if @job.respond_to?(:endpoint)
         uri ||= Activejob::GoogleCloudTasks::Config.endpoint
         URI.parse(uri)
+      end
+
+      def body
+        @job.serialize
       end
 
       def request_type
