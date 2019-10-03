@@ -140,19 +140,36 @@ RSpec.describe Activejob::GoogleCloudTasks::Task do
   end
 
   describe '#url' do
+    before do
+      job.arguments = {arg1: 1, arg2: 'two'}
+    end
 
     context 'with URL endpoint' do
       before do
         Activejob::GoogleCloudTasks::Config.endpoint = 'https://google.com'
       end
       it { expect(task.url).to be_kind_of URI::HTTPS }
+      it do
+        query = CGI.parse(task.url.query)
+        expect(query).to include({'job' => ['HelloJob']})
+        expect(query).to include({
+          'params[arg1]' => ['1'],
+          'params[arg2]' => ['two']})
+      end
     end
 
     context 'with path endpoint' do
       before do
         Activejob::GoogleCloudTasks::Config.endpoint = '/path'
       end
-      it { expect(task.url).to be_kind_of String }
+      it { expect(task.url).to be_kind_of URI::Generic }
+      it do
+        query = CGI.parse(task.url.query)
+        expect(query).to include({'job' => ['HelloJob']})
+        expect(query).to include({
+          'params[arg1]' => ['1'],
+          'params[arg2]' => ['two']})
+      end
     end
 
   end

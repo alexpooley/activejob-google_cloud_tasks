@@ -46,13 +46,8 @@ module Activejob
       end
 
       def url
-        suffix = "/perform?job=#{@job.class.to_s}&#{@job.arguments.to_query('params')}"
-        case endpoint
-        when URI::HTTP, URI::HTTPS
-          URI.join endpoint, suffix
-        when URI::Generic
-          endpoint.to_s + suffix
-        end
+        query = "job=#{@job.class.to_s}&#{@job.arguments.to_query('params')}"
+        endpoint.tap{|e| e.query = query}
       end
 
       def endpoint
