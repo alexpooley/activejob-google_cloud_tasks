@@ -18,7 +18,7 @@ gem 'activejob-google_cloud_tasks', '>= 0.1.2'
 
 ## Usage
 
-First, change the ActiveJob backend.
+First, change the ActiveJob backend in your `config/environments/*` files.
 
 ``` ruby
 Rails.application.config.active_job.queue_adapter = Activejob::GoogleCloudTasks::Adapter.new(
@@ -27,7 +27,7 @@ Rails.application.config.active_job.queue_adapter = Activejob::GoogleCloudTasks:
 )
 ```
 
-Second, mount the rack application.
+Second, mount the rack application in `config/routes.rb`
 
 ``` ruby
 Rails.application.routes.draw do
@@ -35,7 +35,7 @@ Rails.application.routes.draw do
 end
 ```
 
-Write the Job class and code to use it.
+Write the Job class and code to use it like you would any other job.
 
 ``` ruby
 class SampleJob < ApplicationJob
@@ -44,17 +44,10 @@ class SampleJob < ApplicationJob
     puts "#{greeting}, #{name}!"
   end
 end
+
+SampleJob.perform_later('ken', 'howdy')
 ```
 
-``` ruby
-class SampleController < ApplicationController
-  def job
-    SampleJob.perform_later('ken', 'howdy')
-  end
-end
-```
-
-[kawabatas/rails_activejob_sample](https://github.com/kawabatas/rails_activejob_sample) is rails example.
 
 ## Configuration
 
@@ -81,22 +74,16 @@ Rails.application.config.active_job.queue_adapter = Activejob::GoogleCloudTasks:
 ### Config
 ```
 Activejob::GoogleCloudTasks::Config.endpoint = '/foo'
-Activejob::GoogleCloudTasks::Config.http_method = :GET
 ```
 
 - `endpoint` - (Optional) The path or URL which the Cloud Tasks service forwards the task request to the worker. When the endpoint is a path
-then App Engine tasks will be created. When the endpoint is a URL then HTTP Target tasks are created. Default: `/activejobs`
-- `http_method` - (Optional) The HTTP method to use to connect ot the end point. Default: `:GET`
+then App Engine tasks will be created. When the endpoint is a URL then HTTP Target tasks are created and tasks will be POSTed to the endpoint. Default: `/activejobs`
 
-You can override the `endpoint` and `http_method` on a per job basis. For example:
+You can override the `endpoint` on a per job basis. For example:
 ```
 class MyJob < ApplicationJob
   def endpoint
     '/my_job_endpoint'
-  end
-
-  def http_method
-    :DELETE
   end
 end
 
@@ -109,6 +96,8 @@ $ bundle exec rake spec
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/alexpooley/activejob-google_cloud_tasks.
+
+Based on https://github.com/kawabatas/activejob-google_cloud_tasks but deviated substantially since.
 
 ## License
 
