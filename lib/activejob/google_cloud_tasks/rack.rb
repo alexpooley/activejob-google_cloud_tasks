@@ -20,7 +20,7 @@ module Activejob
             raise StandardError, "Job is not specified."
           end
 
-          job = klass(job_json['job_class'])
+          job = klass(job_json['job_class']).new
           job.deserialize(job_json)
           job.perform_now
 
